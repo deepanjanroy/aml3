@@ -18,10 +18,8 @@ def load_csv_data(file_path, data_type=float, max_rows=None):
     data = []
 
     with open(file_path) as f:
-
         reader = csv.reader(f)
         reader.next()  # Getting rid of the headers
-        data = []
         for i, row in enumerate(reader, 1):
             if max_rows is not None and i > max_rows:
                 break
