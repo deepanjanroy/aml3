@@ -86,7 +86,7 @@ class NeuralNetwork(object):
 			h.weights += alpha*np.dot(h.delta[1:], prev.xs.T)	
 		self.output_layer.weights += alpha * np.dot(self.output_layer.delta, self.hidden_layers[-1].xs.T)	
 		
-	def fit(self, xs_train, ys_train, eps=0.0001, max_iter=100, alpha=1):
+	def fit(self, xs_train, ys_train, eps=0.0001, max_iter=100, alpha=0.1):
 		''' Given a set of inputs and outputs, perform stochastic graidient descent until we have converged.
 		@param xs_train A matrix of training examples.
 		@param ys_train A vector of outputs for the training examples.
@@ -140,19 +140,19 @@ if __name__ == '__main__':
 	# Test the XOR function.
 	xor_list = [[0, 0], [0, 1], [1, 0], [1, 1]]
 	ys_list = [0, 1, 1, 0]
-	nn = NeuralNetwork(2304, 1, [2], 10)
-	xs_train = np.load('../data_and_scripts/train_inputs.npy')
-	ys1 = []
-	with open('../data_and_scripts/train_outputs.csv', 'rb') as csvfile:
-		reader = csv.reader(csvfile, delimiter=',')
-		next(reader, None)  # skip the header
-		for train_output in reader:  
-		    train_output_no_id = int(train_output[1])
-		    ys1.append(train_output_no_id)
-	ys1 = np.array(ys1)
-	print "Training"
-	nn.fit(xs_train[0:1000],ys1[0:1000])
-	for i in xrange(1000, 2000):
-		pred = nn.predict(xs_train[i])
-		print pred == ys1[i]
-	
+	nn = NeuralNetwork(50, 1, [20], 10)
+	xs_train = np.load('pca_fold_4_train_xs.npy')
+	ys_train = np.load('pca_fold_4_train_ys.npy')
+	xs_test = np.load('pca_fold_4_test_xs.npy')
+	ys_test = np.load('pca_fold_4_test_ys.npy')
+	nn.fit(xs_train[:,0:50],ys_train)
+	preds = np.zeros(ys_test.shape)
+	correct = 0
+	for i in xrange(0, xs_test.shape[0]):
+		pred = nn.predict(xs_test[i, 0:50])
+		preds[i] = pred
+		if pred == ys_test[i]:
+			correct += 1
+	np.save('final_results.npy', preds)
+	accuracy = float(correct)/xs_test.shape[0]
+	print accuracy
