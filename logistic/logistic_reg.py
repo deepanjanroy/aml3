@@ -159,7 +159,8 @@ class MulticlassLogisticRegressor(object):
         self.X = X
 
 
-    def fit(self, X, y, max_gd_steps=10000, random_restarts=5, sgd_batch_size=10):
+    def fit(self, X, y, max_gd_steps=10000, random_restarts=5, sgd_batch_size=10,
+                        learning_rate=0.001, momentum=0.9, regularization_coeff=0.1):
         self.bind_data(X, y)
         self.binary_regressors = []
 
@@ -173,6 +174,10 @@ class MulticlassLogisticRegressor(object):
                     y_for_kls.append(-1)
 
             logreg_for_kls = LogisticRegressor()
+            logreg_for_kls.learning_rate = learning_rate
+            logreg_for_kls.momentum = momentum
+            logreg_for_kls.C = regularization_coeff
+
             logreg_for_kls.fit(self.X, y_for_kls,
                                max_gd_steps=max_gd_steps,
                                random_restarts=random_restarts,
