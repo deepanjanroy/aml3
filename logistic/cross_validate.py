@@ -2,18 +2,15 @@
 
 import sys
 sys.path.append("..")
+
 import csvio
-import logistic_rega as lg
-from sklearn.decomposition import PCA
+import logistic_reg as lg
 import random
-
+import numpy as np
 from sklearn.decomposition import PCA
-pca = PCA(n_components=100)
-new_xs_train = pca.fit_transform(xs_train)
-new_xs_test = pca.transform(xs_test)
 
-X_pre_pca = csvio.load_csv_data("../../data/train_inputs.csv")  # Size 50000
-y_pre_pca = csvio.load_csv_data("../../data/train_outputs.csv")
+X_all = np.array(csvio.load_csv_data("../../data/train_inputs.csv", max_rows=20000))  # Size 50000
+y_all = np.array(csvio.load_csv_data("../../data/train_outputs.csv", max_rows=20000))
 
 X_train = X_all[:40000]
 y_train = y_all[:40000]
