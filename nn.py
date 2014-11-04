@@ -86,7 +86,7 @@ class NeuralNetwork(object):
 			h.weights += alpha*np.dot(h.delta[1:], prev.xs.T)	
 		self.output_layer.weights += alpha * np.dot(self.output_layer.delta, self.hidden_layers[-1].xs.T)	
 		
-	def fit(self, xs_train, ys_train, eps=0.0001, max_iter=500000, alpha=1):
+	def fit(self, xs_train, ys_train, eps=0.0001, max_iter=100, alpha=1):
 		''' Given a set of inputs and outputs, perform stochastic graidient descent until we have converged.
 		@param xs_train A matrix of training examples.
 		@param ys_train A vector of outputs for the training examples.
@@ -112,7 +112,7 @@ class NeuralNetwork(object):
 			for i in xrange(0, xs_train.shape[0]):
 				self.forwardProp(xs_train[i,:])
 				if self.n_outputs != 1:
-					self.backProp(alpha, np.reshape(ys[i], (2,1)))
+					self.backProp(alpha, np.reshape(ys[i], (self.n_outputs,1)))
 				else:	
 					self.backProp(alpha, np.array([ys[i]]))
 			if abs(prev - self.output_layer.xs[0]) < eps:
@@ -136,13 +136,23 @@ class NeuralNetwork(object):
 		return np.argmax(self.output_layer.xs)
 		
 if __name__ == '__main__':
+	import csv
 	# Test the XOR function.
 	xor_list = [[0, 0], [0, 1], [1, 0], [1, 1]]
 	ys_list = [0, 1, 1, 0]
-	nn = NeuralNetwork(2, 1, [2], 2)
-	#xs_train = np.load('../data_and_scripts/')
-	nn.fit(np.array(xor_list), np.array(ys_list))
-	for i in xrange(0, len(xor_list)):
-		pred = nn.predict(np.array(xor_list[i]))
-		print pred == ys_list[i]
+	nn = NeuralNetwork(2304, 1, [2], 10)
+	xs_train = np.load('../data_and_scripts/train_inputs.npy')
+	ys1 = []
+	with open('../data_and_scripts/train_outputs.csv', 'rb') as csvfile:
+		reader = csv.reader(csvfile, delimiter=',')
+		next(reader, None)  # skip the header
+		for train_output in reader:  
+		    train_output_no_id = int(train_output[1])
+		    ys1.append(train_output_no_id)
+	ys1 = np.array(ys1)
+	print "Training"
+	nn.fit(xs_train[0:1000],ys1[0:1000])
+	for i in xrange(1000, 2000):
+		pred = nn.predict(xs_train[i])
+		print pred == ys1[i]
 	
