@@ -18,13 +18,14 @@ class NeuralNetwork(object):
 				self.xs = np.zeros((n_nodes,1))
 
 			
-	def __init__(self, n_input, n_hidden, n_nodes_per_layer, n_output):
+	def __init__(self, n_input, n_hidden, n_nodes_per_layer, n_output, alpha):
 		''' Takes information about constructing the neural network.
 		@param n_input The number of nodes to include in the input layer.
 		@param n_hidden The number of hidden layers to be included in the network.
 		@param n_nodes_per_layer A list of length n_hidden of the number of nodes in each hidden layer.
 		@param n_output The number of nodes to be included in the output layet.
 		'''
+		self.alpha = alpha
 		self.n_outputs = n_output
 		self.input_layer = NeuralNetwork.Layer(n_input, 0, True, False)
 		self.hidden_layers = []
@@ -59,6 +60,7 @@ class NeuralNetwork(object):
 		@param alpha Learning rate for gradient descent.
 		@param y The correct output layer values.
 		'''
+		alpha=self.alpha
 		temp = np.multiply(self.output_layer.xs, np.subtract(np.ones(self.output_layer.xs.shape), self.output_layer.xs))
 		self.output_layer.delta = np.multiply(temp, np.subtract(y,self.output_layer.xs))
 		#Propogate the error.
@@ -134,7 +136,35 @@ class NeuralNetwork(object):
 			else:
 				return 0
 		return np.argmax(self.output_layer.xs)
-		
+
+def cross_validate(comp_list):
+	for comps in comp_list:
+		for layer_size in [5, 10, 25]:
+			for alpha in [0.01, 0.03, 0.1]:
+				fold_accuracy = []
+				for i in xrange(0, 3):
+					xs_train = np.load('pca_fold_'+str(i)+'_train_xs.npy')[:,0:comps]
+					ys_train = np.load('pca_fold_'+str(i)+'_train_ys.npy')
+					
+					nn = NeuralNetwork(comps, 1, [layer_size], 10, alpha)
+					nn.fit(xs_train[:,0:50],ys_train)
+					
+					test_xs = np.load('pca_fold_'+str(i)+'_test_xs.npy')[:,0:comps]
+					test_ys = np.load('pca_fold_'+str(i)+'_test_ys.npy')
+					preds = np.zeros(test_ys.shape)
+					correct = 0
+					for j in xrange(0, test_xs.shape[0]):
+						pred_raw = nn.predict(test_xs[j,:])
+						pred = np.argmax(np.array(pred_raw))
+						preds[j] = pred
+						if pred == test_ys[j]:
+							correct += 1
+					np.save('result_%d_%d_%f_%d.npy' % (comps, layer_size, alpha, i), preds)
+					accuracy = float(correct)/test_xs.shape[0]
+					fold_accuracy.append(accuracy)
+				acc = np.sum(fold_accuracy)/3
+				print "Components: %d\tHidden Nodes: %d\tLearning Rate: %f Accuracy: %f" % (comps, layer_size, alpha, acc)
+
 if __name__ == '__main__':
 	import csv
 	# Test the XOR function.
