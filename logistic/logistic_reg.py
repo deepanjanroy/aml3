@@ -10,7 +10,6 @@ from exceptions import OverflowError
 
 
 class LogisticRegressor(object):
-    # TODO: Normalize features
     def __init__(self):
         self.weights = None
         self.S = lambda x: 1.0 / ( 1 + math.exp(-x))  # Sigmoid function
@@ -215,6 +214,10 @@ class MulticlassLogisticRegressor(object):
             if self.predict(X[i]) == y[i]:
                 total_correct += 1
         return float(total_correct) / len(X)
+
+    def one_step_sgd(self):
+        for breg in binary_regressors:
+            breg.one_step_sgd()
 
 
 
