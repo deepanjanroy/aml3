@@ -139,7 +139,7 @@ class NeuralNetwork(object):
 
 def cross_validate(comp_list):
 	for comps in comp_list:
-		for layer_size in [5, 10, 25]:
+		for layer_size in [10, 25]:
 			for alpha in [0.01, 0.03, 0.1]:
 				fold_accuracy = []
 				for i in xrange(0, 3):
@@ -147,7 +147,7 @@ def cross_validate(comp_list):
 					ys_train = np.load('pca_fold_'+str(i)+'_train_ys.npy')
 					
 					nn = NeuralNetwork(comps, 1, [layer_size], 10, alpha)
-					nn.fit(xs_train[:,0:50],ys_train)
+					nn.fit(xs_train,ys_train)
 					
 					test_xs = np.load('pca_fold_'+str(i)+'_test_xs.npy')[:,0:comps]
 					test_ys = np.load('pca_fold_'+str(i)+'_test_ys.npy')
