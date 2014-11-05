@@ -30,7 +30,7 @@ def cross_validate(comps, view=False):
 	for layer_size in [5,10,25]:
 		for alpha in [0.01, 0.03, 0.1]:
 			fold_accuracy = []
-			for i in xrange(0, 3):
+			for i in xrange(0, 5):
 				if not view:
 					xs = np.load('pca_fold_'+str(i)+'_train_xs.npy')[:,0:comps]
 					ys = np.load('pca_fold_'+str(i)+'_train_ys.npy')
@@ -65,7 +65,7 @@ def cross_validate(comps, view=False):
 					np.save('long_result_%d_%d_%f_%d.npy' % (comps, layer_size, alpha, i), preds)
 				accuracy = float(correct)/test_xs.shape[0]
 				fold_accuracy.append(accuracy)
-			acc = np.sum(fold_accuracy)/3
+			acc = np.sum(fold_accuracy)/5
 			if view:
 				#print "%d & %d & %f & %f\\\\" % (comps, layer_size, alpha, acc)
 				#print "\hline"
